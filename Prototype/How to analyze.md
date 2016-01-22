@@ -1,7 +1,7 @@
 Analysis
 ========
 
-These steps assumes that 'data/labeled_logs.csv' exist with information on the labeled logs in the directory outside Rscripts.
+These steps assumes that 'data/labeled_logs.csv' exist with information on the labeled logs.
 
 ## Prerequisites
 
