@@ -4,37 +4,42 @@
 #  Predict new data 
 
 #  ------------------------------------------------------------------------
+library("methods")
 
-
-# # For test
-# setwd('C:/Users/erogeka/bla/Protoype/Analysis')
-# model <- 'bsl-model'
 
 # User input 
 args <- commandArgs(TRUE)
-modelSelection <- args[1]
+dtmDir <- args[1]
+modelDir <- args[2]
+modelSelection <- args[3]
+scriptDirectory <- args[4]
+ldaRda = paste(modelDir,"/lda.rda", sep="")
+tfidfFeaturesRda = paste(modelDir,"/tfidfFeatures.rda", sep="")
+bslModel = paste(modelDir,"/bsl-model.rda", sep="")
+bsslModel = paste(modelDir,"/bssl-model.rda", sep="")
+slModel = paste(modelDir,"/sl-model.rda", sep="")
+
 
 # Load user defined config file
-source('./config.R')
-
-# Load other functions
-source('./helpers.R')
-source('./bssl.R')
+source(paste(scriptDirectory,"/config.R", sep=""))
 
 
-# Add local path to user installed packages
-.libPaths( c( .libPaths(), localLibs))
+# Load functions from other scripts
+source(paste(scriptDirectory,"/bssl.R", sep=""))
+source(paste(scriptDirectory,"/helpers.R", sep=""))
+
 
 library(topicmodels)
 
 # Data --------------------------------------------------------------------
 
 # Load the new data
-newDTM <- getDTM('data/newData/')
+newDTM <- getDTM(paste(dtmDir,"/", sep=""))
 
 # import list of words after tfidf reduction and lda model
-load('./results/lda.rda')
-load('./results/tfidfFeatures.rda')
+load(ldaRda)
+load(tfidfFeaturesRda)
+
 
 # Select the features left after tfidf reduction
 newDTM.tfidf <- rep(0, length(features))
@@ -59,21 +64,21 @@ X <- model.matrix(~., data=x)
 
 # Bayesian supervised learning
 if(modelSelection == 'bsl'){
-  load('./results/bsl-model.rda')
+  load(bslModel)
   pred <- predict.with.posterior(model$beta, X=X, levels = model$levels)
   pred$prob  
 }
 
 # Bayesian semi-supervised learning
 if(modelSelection == 'bssl'){
-  load('./results/bssl-model.rda')
+  load(bsslModel)
   pred <- predict.with.posterior(model$beta, X=X, levels = model$levels)
   pred$prob  
 }
 
 # Supervised learning (non-Bayesian)
 if(modelSelection == 'sl'){
-  load('./results/sl-model.rda')
+  load(slModel)
   pred <- calc_prob(matrix(coef(model)), X)
   colnames(pred) <- model$lev
   pred

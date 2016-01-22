@@ -10,7 +10,11 @@ library(nnet)
 
 # User input 
 args <- commandArgs(TRUE)
-alMethod <- args[1]
+inputDir <- args[1]
+alMethod <- args[2]
+labeledLogsCSV <- args[3]
+
+topicsRDA = paste(inputDir,"/topics.rda", sep="")
 
 # # For test 
 # alMethod <- 'exp.model.change.ml'
@@ -18,10 +22,6 @@ alMethod <- args[1]
 
 # Load user defined config file
 source('./config.R')
-
-
-# Add local path to user installed packages
-.libPaths( c( .libPaths(), localLibs))
 
 
 source("./helpers.R")
@@ -36,9 +36,10 @@ source("./bssl.R")
 
 
 # Topic proportions
-load('./results/topics.rda')
+load(topicsRDA)
 
-labeledLogs <- read.csv2( labeledLogsDir, row.names = 1)
+labeledLogs <- read.csv2(labeledLogsCSV, row.names = 1)
+
 
 # Merge topic distributions and info of labels
 data <- merge(labeledLogs[, c('general.failure.cause', 

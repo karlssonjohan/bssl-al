@@ -8,6 +8,7 @@
 
 
 #  ------------------------------------------------------------------------
+library("methods")
 
 
 # Input arguments
@@ -15,20 +16,23 @@ args <- commandArgs(TRUE)
 dtmDirectory <- args[1]
 nwords <- args[2]
 ntopics <- args[3] 
+scriptDirectory <- args[4]
 # Loads used defined variables in config.R file, should be located in the
 # working directory
-source('./config.R')
-source('./helpers.R')
+source(paste(scriptDirectory,"/config.R", sep=""))
+source(paste(scriptDirectory,"/helpers.R", sep=""))
 
 
-# Add local path to user installed packages
-.libPaths( c( .libPaths(), localLibs))
+
+# Create output dir
+outputDir = paste(dtmDirectory,"._analysis", sep="")
+dir.create(outputDir, showWarnings = FALSE)
 
 
 # Data --------------------------------------------------------------------
 
 # Load dtm
-dtm <- getDTM(dtmDirectory)
+dtm <- getDTM(paste(dtmDirectory,"/", sep=""))
 
 
 # Compute TF-IDF ----------------------------------------------------------
@@ -64,11 +68,12 @@ tfidf.selection <- function(dtm){
 
 # Only perform if not nwords are NULL
 if(!is.null(nwords)){
+  print("Running TFIDF")
   dtm <- tfidf.selection(dtm)
 }
 
 features <- dtm@Dimnames[[2]]
-save(features, file='./results/tfidfFeatures.rda')
+save(features, file = paste(outputDir, '/tfidfFeatures.rda', sep=""))
 
 
 
@@ -92,13 +97,11 @@ lda.dimred <- function(dtm, alpha = 0.1){
   row.names(topic.proportions) <- dtm@Dimnames[[1]]
   
   # Save to file
-  dir.create('./results/', showWarnings = FALSE)
-  save(topic.proportions, file ='./results/topics.rda')
-  save(lda.model, file ='./results/lda.rda')
+  save(topic.proportions, file = paste(outputDir, '/topics.rda', sep=""))
+  save(lda.model, file =paste(outputDir, '/lda.rda', sep=""))
   
 }
 
+print("Running LDA")
 lda.dimred(dtm)
-
-
 

@@ -8,34 +8,32 @@
 
 # User input 
 args <- commandArgs(TRUE)
-vis <- args[1]
+inputDir <- args[1]
+vis <- args[2]
+scriptDirectory <- args[3]
+labeledLogsDirectory <- args[4]
 
-# For test
-setwd('C:/Users/erogeka/bla/Protoype/Analysis')
-vis = TRUE
-
-# Load user defined config file
-source('./config.R')
-
-
-# Add local path to user installed packages
-.libPaths( c( .libPaths(), localLibs))
-
+# Program variables
+outputDir = inputDir
+topicsRDA = paste(inputDir,"/topics.rda", sep="")
+labeledLogsCSV = paste(labeledLogsDirectory,"/labeled_logs.csv", sep="")
+bsslModel = paste(outputDir,"/bssl-model.rda", sep="")
+bsslTraceDensity = paste(outputDir,"/bssl-trace-density.pdf", sep="") 
+bsslBoxplots =  paste(outputDir,"/bssl-boxplots.pdf", sep="") 
 
 # Load functions from other scripts
-source("./bssl.R")
-source("./helpers.R")
-
-
+source(paste(scriptDirectory,"/config.R", sep=""))
+source(paste(scriptDirectory,"/bssl.R", sep=""))
+source(paste(scriptDirectory,"/helpers.R", sep=""))
 
 
 # Data --------------------------------------------------------------------
 
 # Topic proportions
-load('./results/topics.rda')
+load(topicsRDA)
 
-labeledLogs <- read.csv2('./data/labeled_logs.csv', row.names = 1)
 
+labeledLogs <- read.csv2(labeledLogsCSV, row.names = 1)
 
 
 
@@ -61,23 +59,18 @@ y <- factor(c(yl, yu))
 # Modeling ----------------------------------------------------------------
 
 model <- ssl_MH(y =  y, x = x, burn = burn, samp = samp,
-                kappa = kappa, tau=tau)
+                kappa = bssl_kappa, tau=tau)
 
 
-save(model, file='./results/bssl-model.rda')
-
+save(model, file=bsslModel)
 
  # Visualization & evaluation ----------------------------------------------
 
 if(vis == TRUE){
-  mcmc.plots(model$beta, pdf = TRUE ,filename = './results/bssl-trace-density.pdf', 
+ 	 mcmc.plots(model$beta, pdf = TRUE ,filename = bsslTraceDensity, 
              title = '')
   
-  mcmc.boxplots(model$beta, pdf = TRUE ,filename = './results/bssl-boxplots.pdf', 
+	mcmc.boxplots(model$beta, pdf = TRUE ,filename = bsslBoxplots, 
                 title = '')
   
 }
-
-
-
-

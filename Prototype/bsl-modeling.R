@@ -8,26 +8,33 @@
 
 # User input 
 args <- commandArgs(TRUE)
-vis <- args[1]
+inputDir <- args[1]
+vis <- args[2]
+scriptDirectory <- args[3]
+labeledLogsDirectory <- args[4]
 
-# Load user defined config file
-source('./config.R')
-
-
-# Add local path to user installed packages
-.libPaths( c( .libPaths(), localLibs))
+# Program variables
+outputDir = inputDir
+topicsRDA = paste(inputDir,"/topics.rda", sep="")
+labeledLogsCSV = paste(labeledLogsDirectory,"/labeled_logs.csv", sep="")
+bslModel = paste(outputDir,"/bsl-model.rda", sep="")
+bslTraceDensity = paste(outputDir,"/bsl-trace-density.pdf", sep="") 
+bslBoxplots =  paste(outputDir,"/bsl-boxplots.pdf", sep="") 
 
 # Load functions from other scripts
-source("./bssl.R")
-source("./helpers.R")
+source(paste(scriptDirectory,"/config.R", sep=""))
+source(paste(scriptDirectory,"/bssl.R", sep=""))
+source(paste(scriptDirectory,"/helpers.R", sep=""))
 
 
 # Data --------------------------------------------------------------------
 
 # Topic proportions
-load('./results/topics.rda')
+# load('./results/topics.rda')
+load(topicsRDA)
 
-labeledLogs <- read.csv2('./data/labeled_logs.csv', row.names = 1)
+
+labeledLogs <- read.csv2(labeledLogsCSV, row.names = 1)
 
 
 # Merge topic distributions and info of labels
@@ -52,22 +59,20 @@ y <- factor(c(yl, yu))
 # Modeling ----------------------------------------------------------------
 
 model <- ssl_MH(y =  y[!is.na(y)], x = x[!is.na(y),], burn = burn, samp = samp,
-                kappa = kappa, tau=tau)
+                kappa = bsl_kappa, tau=tau)
 
 
-save(model, file='./results/bsl-model.rda')
+save(model, file=bslModel)
+
 
 
 # Visualization & evaluation ----------------------------------------------
 
 if(vis == TRUE){
-  mcmc.plots(model$beta, pdf = TRUE ,filename = './results/bsl-trace-density.pdf', 
+  mcmc.plots(model$beta, pdf = TRUE ,filename = bslTraceDensity, 
              title = '')
   
-  mcmc.boxplots(model$beta, pdf = TRUE ,filename = './results/bsl-boxplots.pdf', 
+  	  mcmc.boxplots(model$beta, pdf = TRUE ,filename = bslBoxplots, 
                 title = '')
   
 }
-
-
-

@@ -10,18 +10,13 @@
 
 #  ------------------------------------------------------------------------
 
-# Load user defined config file
-source('./config.R')
-
-
-# Add local path to user installed packages
-.libPaths( c( .libPaths(), localLibs))
 
 library(mvtnorm)
 library(nnet)   
 # library(optimx)   # For optimization with the hessian
 library(ggplot2)
 library(plyr)
+library(grid)
 require(gridExtra)
 library(reshape2)
 library(glmnet)

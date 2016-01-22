@@ -3,33 +3,35 @@
 
 #  Non-Bayesian supervised learning
 
-#  ------------------------------------------------------------------------
 
-# # For test
-# setwd('C:/Users/erogeka/bla/Protoype/Analysis')
+#  ------------------------------------------------------------------------
 
 
 # User input 
 args <- commandArgs(TRUE)
+inputDir <- args[1]
+scriptDirectory <- args[2]
+labeledLogsDirectory <- args[3]
+
+# Program variables
+outputDir = inputDir
+topicsRDA = paste(inputDir,"/topics.rda", sep="")
+labeledLogsCSV = paste(labeledLogsDirectory,"/labeled_logs.csv", sep="")
+slModel = paste(outputDir,"/sl-model.rda", sep="")
 
 # Load user defined config file
-source('./config.R')
-
-
-# Add local path to user installed packages
-.libPaths( c( .libPaths(), localLibs))
+source(paste(scriptDirectory,"/config.R", sep=""))
 
 library(nnet)   
-
 
 
 # Data --------------------------------------------------------------------
 
 
 # Topic proportions
-load('./results/topics.rda')
+load(topicsRDA)
 
-labeledLogs <- read.csv2('./data/labeled_logs.csv', row.names = 1)
+labeledLogs <- read.csv2(labeledLogsCSV, row.names = 1)
 
 # Merge topic distributions and info of labels
 data <- merge(labeledLogs[, c('general.failure.cause', 
@@ -54,9 +56,4 @@ y <- factor(c(yl, yu))
 
 model <- multinom(yl ~ Xl[,])
 
-
-save(model, file='./results/sl-model.rda')
-
-
-
-
+save(model, file=slModel)

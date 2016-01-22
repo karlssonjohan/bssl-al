@@ -9,10 +9,6 @@
 source('./config.R')
 
 
-# Add local path to user installed packages
-.libPaths( c( .libPaths(), localLibs))
-
-
 # Load functions from helpers.R script
 if(!exists("entr", mode="function")) source("./helpers.R")
 

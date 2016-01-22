@@ -28,7 +28,7 @@ getDTM <- function(directory){
   # Load matrix in MatrixMarket format. 
   dtm <- readMM(paste(directory, 'dtm.mtx', sep=''))
   # Get id and features
-  rnames <- scan(paste(directory, 'fileID.txt.txt', sep=''), 
+  rnames <- scan(paste(directory, 'fileID.txt', sep=''), 
                  what = 'character', nmax = dim(dtm)[1])
   row.names(dtm) <- sapply(strsplit(rnames, '_'), 
                            function(x) paste(x[1:2], collapse = '_'))
